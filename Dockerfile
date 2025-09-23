@@ -8,8 +8,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json to leverage Docker's layer caching.
 COPY package*.json ./
 
-# Install project dependencies.
-RUN npm install --legacy-peer-deps
+# Install project dependencies.|| --legacy-peer-deps :- This is a quick fix that tells npm to ignore peer dependency conflicts and install the packages anyway
+RUN npm install 
 
 # Copy the rest of the application source code.
 COPY . .
