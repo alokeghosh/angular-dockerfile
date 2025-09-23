@@ -25,6 +25,7 @@ FROM nginx:alpine
 #COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built Angular application from the 'build' stage into the Nginx server's directory.
+RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/dist/angular-conduit/browser /usr/share/nginx/html
 
 # Expose port 80 to allow incoming traffic.
