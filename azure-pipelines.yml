@@ -38,3 +38,42 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+    - task: CmdLine@2
+      inputs:
+        script: 'docker rmi -f agpocacr.azurecr.io/alokeghoshangulardockerfile:#{Build.BuildId}#'
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)/aks_all_yaml'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy_in_aks
+  displayName: "Release Stage"
+  pool:
+    name: alokeagent
+    vmImage: $(vmImageName)
+  jobs:
+  - deployment: deploy_job
+    environment: 'aks-test'
+    strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: replacetokens@6
+              displayName: 'replace token'
+              inputs:
+                root: '$(Pipeline.Workspace)/drop'
+                sources: 'angular-deployment.yaml'
+            - task: Kubernetes@1
+              displayName: 'kubectl apply'
+              inputs:
+                connectionType: 'Kubernetes Service Connection'
+                kubernetesServiceEndpoint: 'aks-agrocd-connection'
+                command: 'apply'
+                useConfigurationFile: true
+                configuration: '$(Pipeline.Workspace)/drop/angular-deployment.yaml'
