@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: angular-app-container
-          image: agpocacr.azurecr.io/dotnetdockerfile:#{Build.BuildId}#
+          image: agpocacr.azurecr.io/alokeghoshangulardockerfile:#{Build.BuildId}#
           ports:
             - containerPort: 80
 ---
